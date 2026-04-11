@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { useUserStore } from '../store/userStore';
 import { useStats, useProgress } from '../hooks/useProfileData';
 import StatsCards from '../components/StatsCards';
@@ -7,7 +8,7 @@ import CompanyBreakdown from '../components/CompanyBreakdown';
 import useSEO from '../hooks/useSEO';
 
 export default function ProfilePage() {
-  const { state: { currentUser } } = useUserStore();
+  const { state: { currentUser, isGuest } } = useUserStore();
 
   const { data: stats, isLoading: statsLoading } = useStats(currentUser?.id);
   const { data: progress, isLoading: progressLoading } = useProgress(currentUser?.id);
@@ -21,8 +22,34 @@ export default function ProfilePage() {
     keywords: 'DSA tracker progress, LeetCode progress, coding interview tracker',
   });
 
+  if (isGuest) {
+    return (
+      <div className="flex-1 flex flex-col items-center justify-center p-6 bg-[color:var(--primary)] text-center h-full">
+        <div className="max-w-md w-full bg-[color:var(--surface)] border-2 border-[color:var(--border-main)] border-b-8 p-8 sm:p-12 brutalist-no-radius shadow-[8px_8px_0px_0px_var(--border-main)]">
+          <div className="w-16 h-16 mx-auto mb-6 bg-[color:var(--surface-active)] border-2 border-[color:var(--border-main)] flex items-center justify-center transform -rotate-6">
+            <svg className="w-8 h-8 text-[color:var(--text-main)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+          </div>
+          <h2 className="text-2xl font-black uppercase tracking-tighter mb-4 leading-none">Unlock Analytics</h2>
+          <p className="text-[color:var(--text-muted)] font-bold text-xs uppercase tracking-widest leading-relaxed mb-8">
+            Create a record to access detailed company breakdowns, difficulty distributions, and persistent progress tracking.
+          </p>
+          <Link 
+            to="/auth" 
+            className="block w-full bg-[color:var(--text-main)] text-[color:var(--surface)] font-black py-4 px-4 brutalist-no-radius transition-all border-2 border-[color:var(--border-main)] hover:translate-x-1 hover:-translate-y-1 shadow-[4px_4px_0px_0px_var(--border-main)] active:shadow-none active:translate-x-0 active:translate-y-0 uppercase tracking-widest text-xs"
+          >
+            Sign In to Start
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   if (!currentUser) {
-    return <div className="p-8 text-center text-slate-400 h-screen flex justify-center items-center">Authentication required.</div>;
+    return (
+      <div className="flex-1 flex flex-col items-center justify-center p-6 h-full text-[color:var(--text-muted)] uppercase font-black text-xs tracking-[0.3em]">
+        Access Denied.
+      </div>
+    );
   }
 
   if (loading || !stats) {

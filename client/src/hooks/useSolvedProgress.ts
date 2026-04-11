@@ -9,9 +9,9 @@ import { useCallback, useMemo, useRef } from 'react';
  * This is the ONLY source of truth for solved state.
  */
 export function useSolvedIds(): Set<number> {
-  const { state: { currentUser } } = useUserStore();
+  const { state: { currentUser, isGuest } } = useUserStore();
 
-  const { data } = useQuery({
+  const { data: serverData } = useQuery({
     queryKey: ['solved-ids', currentUser?.id],
     queryFn: () => fetchSolvedIds(currentUser!.id),
     enabled: !!currentUser,
@@ -19,7 +19,21 @@ export function useSolvedIds(): Set<number> {
     gcTime: 30 * 60 * 1000,
   });
 
-  return useMemo(() => new Set(data ?? []), [data]);
+  // For Guest mode, we always read from localStorage
+  const { data: guestData } = useQuery({
+    queryKey: ['guest-solved-ids'],
+    queryFn: () => {
+      const saved = localStorage.getItem('dsa_guest_progress');
+      return saved ? JSON.parse(saved) as number[] : [];
+    },
+    enabled: isGuest,
+  });
+
+  return useMemo(() => {
+    if (currentUser) return new Set(serverData ?? []);
+    if (isGuest) return new Set(guestData ?? []);
+    return new Set<number>();
+  }, [currentUser, isGuest, serverData, guestData]);
 }
 
 /**
@@ -33,36 +47,51 @@ export function useSolvedIds(): Set<number> {
  * This means only components subscribed to useSolvedIds() re-render.
  */
 export function useToggleSolved() {
-  const { state: { currentUser } } = useUserStore();
+  const { state: { currentUser, isGuest } } = useUserStore();
   const queryClient = useQueryClient();
   const inflightRef = useRef(new Set<number>());
 
   const mutation = useMutation({
     mutationFn: async ({ questionId, solved }: { questionId: number; solved: boolean }) => {
-      if (!currentUser) throw new Error('No user');
-      await toggleSolved(currentUser.id, questionId, solved);
+      if (currentUser) {
+        await toggleSolved(currentUser.id, questionId, solved);
+      } else if (isGuest) {
+        // Handle guest mode locally
+        const saved = localStorage.getItem('dsa_guest_progress');
+        let ids: number[] = saved ? JSON.parse(saved) : [];
+        if (solved) {
+          if (!ids.includes(questionId)) ids.push(questionId);
+        } else {
+          ids = ids.filter(id => id !== questionId);
+        }
+        localStorage.setItem('dsa_guest_progress', JSON.stringify(ids));
+      } else {
+        throw new Error('No user or guest mode');
+      }
     },
     onMutate: async ({ questionId, solved }) => {
+      const queryKey = currentUser ? ['solved-ids', currentUser.id] : ['guest-solved-ids'];
+      
       // Cancel any outgoing refetches so they don't overwrite our optimistic update
-      await queryClient.cancelQueries({ queryKey: ['solved-ids', currentUser?.id] });
+      await queryClient.cancelQueries({ queryKey });
 
       // Snapshot the previous cache for rollback
-      const previousIds = queryClient.getQueryData<number[]>(['solved-ids', currentUser?.id]);
+      const previousIds = queryClient.getQueryData<number[]>(queryKey);
 
       // Optimistically update the query cache
-      queryClient.setQueryData<number[]>(['solved-ids', currentUser?.id], (old) => {
+      queryClient.setQueryData<number[]>(queryKey, (old) => {
         if (!old) return solved ? [questionId] : [];
         if (solved) return [...old, questionId];
         return old.filter(id => id !== questionId);
       });
 
       inflightRef.current.add(questionId);
-      return { previousIds };
+      return { previousIds, queryKey };
     },
     onError: (_err, _vars, context) => {
       // Rollback: restore cache to snapshot
       if (context?.previousIds !== undefined) {
-        queryClient.setQueryData(['solved-ids', currentUser?.id], context.previousIds);
+        queryClient.setQueryData(context.queryKey, context.previousIds);
       }
     },
     onSettled: (_data, _err, vars) => {

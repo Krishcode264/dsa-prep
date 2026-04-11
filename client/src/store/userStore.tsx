@@ -4,25 +4,30 @@ import type { User } from '../types';
 
 interface State {
   currentUser: User | null;
+  isGuest: boolean;
   initializing: boolean;
 }
 
 type Action =
   | { type: 'SET_USER'; payload: User | null }
+  | { type: 'SET_GUEST' }
   | { type: 'CLEAR_USER' }
   | { type: 'SET_INITIALIZED' };
 
 const initialState: State = {
   currentUser: null,
+  isGuest: false,
   initializing: true,
 };
 
 function reducer(state: State, action: Action): State {
   switch (action.type) {
     case 'SET_USER':
-      return { ...state, currentUser: action.payload };
+      return { ...state, currentUser: action.payload, isGuest: false };
+    case 'SET_GUEST':
+      return { ...state, currentUser: null, isGuest: true };
     case 'CLEAR_USER':
-      return { ...state, currentUser: null };
+      return { ...state, currentUser: null, isGuest: false };
     case 'SET_INITIALIZED':
       return { ...state, initializing: false };
     default:

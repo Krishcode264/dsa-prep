@@ -88,4 +88,35 @@ router.post('/:userId/:questionId', async (req, res, next) => {
   }
 });
 
+router.post('/:userId/sync', async (req, res, next) => {
+  try {
+    const userId = parseInt(req.params.userId);
+    const { questionIds } = req.body; // Array of question IDs
+
+    if (isNaN(userId) || !Array.isArray(questionIds)) {
+      return res.status(400).json({ error: 'Invalid data' });
+    }
+
+    if (questionIds.length === 0) {
+      return res.json({ success: true, synced: 0 });
+    }
+
+    // Bulk insert with ON CONFLICT to ignore duplicates
+    const values = questionIds.map(id => `(${userId}, ${id}, true, NOW())`).join(', ');
+    const query = `
+      INSERT INTO user_progress (user_id, question_id, solved, solved_at)
+      VALUES ${values}
+      ON CONFLICT (user_id, question_id) DO UPDATE SET
+        solved = true,
+        solved_at = COALESCE(user_progress.solved_at, EXCLUDED.solved_at)
+      RETURNING question_id
+    `;
+    
+    const result = await pool.query(query);
+    res.json({ success: true, synced: result.rowCount });
+  } catch (err) {
+    next(err);
+  }
+});
+
 export default router;

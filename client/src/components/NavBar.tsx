@@ -2,12 +2,13 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useUserStore } from '../store/userStore';
 
 export default function NavBar() {
-  const { state: { currentUser }, dispatch } = useUserStore();
+  const { state: { currentUser, isGuest }, dispatch } = useUserStore();
   const location = useLocation();
   const navigate = useNavigate();
 
   const handleLogout = () => {
     localStorage.removeItem('dsa_user');
+    localStorage.removeItem('dsa_is_guest');
     dispatch({ type: 'CLEAR_USER' });
     navigate('/');
   };
@@ -33,7 +34,7 @@ export default function NavBar() {
             Explore
           </Link>
           
-          {currentUser && (
+          {(currentUser || isGuest) && (
             <Link 
               to="/profile" 
               className={`text-[10px] md:text-xs font-black uppercase tracking-widest px-3 py-1.5 border-2 border-[color:var(--border-main)] brutalist-no-radius transition-all ${location.pathname === '/profile' ? activeClass : inactiveClass}`}
@@ -62,7 +63,7 @@ export default function NavBar() {
           </svg>
         </a>
 
-        {!currentUser ? (
+        {!currentUser && !isGuest ? (
           <Link 
             to="/auth" 
             className="text-[10px] md:text-xs font-black uppercase tracking-widest px-4 py-1.5 md:py-2 bg-[color:var(--text-main)] text-[color:var(--surface)] brutalist-no-radius border-2 border-[color:var(--border-main)] hover:translate-x-1 hover:-translate-y-1 transition-all shadow-[4px_4px_0px_0px_var(--border-main)] active:shadow-none active:translate-x-0 active:translate-y-0"
@@ -72,7 +73,7 @@ export default function NavBar() {
         ) : (
           <div className="flex items-center gap-2 md:gap-4">
             <span className="hidden sm:inline bg-[color:var(--surface-active)] border-2 border-[color:var(--border-main)] px-3 py-1 text-[10px] font-black uppercase tracking-widest">
-              @{currentUser.username}
+              {currentUser ? `@${currentUser.username}` : 'GUEST'}
             </span>
             <button 
               onClick={handleLogout}

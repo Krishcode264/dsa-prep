@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { authLogin, authSignup } from '../api/client';
+import { authLogin, authSignup, syncProgress } from '../api/client';
 import { useUserStore } from '../store/userStore';
+import { useQueryClient } from '@tanstack/react-query';
 
 export default function AuthPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { state: { currentUser }, dispatch } = useUserStore();
   
   const [isLogin, setIsLogin] = useState(true);
@@ -38,8 +40,28 @@ export default function AuthPage() {
         user = await authSignup(formData);
       }
       
+      // SYNC LOGIC: If guest data exists, sync it to the new user account
+      const guestData = localStorage.getItem('dsa_guest_progress');
+      if (guestData) {
+        try {
+          const questionIds = JSON.parse(guestData);
+          if (questionIds.length > 0) {
+            await syncProgress(user.id, questionIds);
+          }
+          localStorage.removeItem('dsa_guest_progress');
+          localStorage.removeItem('dsa_is_guest');
+        } catch (syncErr) {
+          console.error('Failed to sync guest data:', syncErr);
+        }
+      }
+
       localStorage.setItem('dsa_user', JSON.stringify(user));
       dispatch({ type: 'SET_USER', payload: user });
+      
+      // Invalidate queries to fetch fresh synced data
+      queryClient.invalidateQueries({ queryKey: ['solved-ids', user.id] });
+      queryClient.invalidateQueries({ queryKey: ['stats', user.id] });
+      queryClient.invalidateQueries({ queryKey: ['progress', user.id] });
       
       const redirect = searchParams.get('redirect') || '/questions';
       navigate(redirect, { replace: true });
@@ -48,6 +70,13 @@ export default function AuthPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleGuestMode = () => {
+    localStorage.setItem('dsa_is_guest', 'true');
+    dispatch({ type: 'SET_GUEST' });
+    const redirect = searchParams.get('redirect') || '/questions';
+    navigate(redirect, { replace: true });
   };
 
   return (
@@ -122,6 +151,21 @@ export default function AuthPage() {
           >
             {isLogin ? "Need a record? Sign up" : 'Have a record? Log in'}
           </button>
+
+          <div className="mt-10 pt-8 border-t-2 border-dashed border-[color:var(--border-subtle)]">
+            <p className="text-center text-[10px] font-bold uppercase tracking-widest text-[color:var(--text-muted)] mb-4">Or stay off-grid</p>
+            <button
+              onClick={handleGuestMode}
+              className="w-full bg-[color:var(--surface)] text-[color:var(--text-main)] font-black py-4 px-4 brutalist-no-radius transition-all flex justify-center items-center gap-2 border-2 border-[color:var(--border-main)] hover:bg-[color:var(--surface-hover)] border-b-4 active:border-b-2 active:translate-y-0.5 uppercase tracking-widest text-xs"
+            >
+              Continue as Guest
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>
+            </button>
+            <p className="mt-4 text-center text-[9px] font-medium text-[color:var(--text-muted)] leading-relaxed">
+              Progress will be stored in your browser's local storage.<br/>
+              Syncing is available when you create a record later.
+            </p>
+          </div>
         </div>
       </div>
     </div>

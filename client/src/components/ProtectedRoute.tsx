@@ -7,7 +7,7 @@ interface ProtectedRouteProps {
 }
 
 export default function ProtectedRoute({ children }: ProtectedRouteProps) {
-  const { state: { currentUser, initializing } } = useUserStore();
+  const { state: { currentUser, isGuest, initializing } } = useUserStore();
   const location = useLocation();
 
   if (initializing) {
@@ -18,7 +18,7 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
     );
   }
 
-  if (!currentUser) {
+  if (!currentUser && !isGuest) {
     // Redirect to auth with current path as redirect param
     const returnUrl = encodeURIComponent(location.pathname + location.search);
     return <Navigate to={`/auth?redirect=${returnUrl}`} replace />;

@@ -15,12 +15,16 @@ export default function App() {
 
   useEffect(() => {
     const savedUser = localStorage.getItem('dsa_user');
+    const isGuest = localStorage.getItem('dsa_is_guest') === 'true';
+
     if (savedUser) {
       try {
         dispatch({ type: 'SET_USER', payload: JSON.parse(savedUser) });
       } catch (e) {
         localStorage.removeItem('dsa_user');
       }
+    } else if (isGuest) {
+      dispatch({ type: 'SET_GUEST' });
     }
     dispatch({ type: 'SET_INITIALIZED' });
   }, [dispatch]);

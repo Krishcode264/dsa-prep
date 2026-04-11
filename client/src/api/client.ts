@@ -95,3 +95,11 @@ export async function authSignup(data: any): Promise<User> {
     body: JSON.stringify(data),
   });
 }
+
+export async function syncProgress(userId: number, questionIds: number[]): Promise<{ synced: number }> {
+  return request<{ synced: number }>(`/api/progress/${userId}/sync`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ questionIds }),
+  });
+}
