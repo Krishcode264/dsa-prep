@@ -3,9 +3,13 @@ import { createRoot } from 'react-dom/client'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { HelmetProvider } from 'react-helmet-async'
 import { ThemeProvider } from './context/ThemeContext'
+import { inject } from '@vercel/analytics'
 import './index.css'
 import App from './App.tsx'
 import { UserProvider } from './store/userStore.tsx'
+
+// Initialize Vercel Analytics
+inject();
 
 const queryClient = new QueryClient({
   defaultOptions: {

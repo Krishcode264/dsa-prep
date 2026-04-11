@@ -2,6 +2,9 @@ import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import path from 'path';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
+
 import authRouter from './routes/auth';
 import questionsRouter from './routes/questions';
 import companiesRouter from './routes/companies';
@@ -16,12 +19,38 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// Security Middleware
+app.use(helmet({
+  contentSecurityPolicy: false, // Disabled for simplicity with SPA, re-enable if needed for strict production
+}));
+
+// Rate Limiting
+const globalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per windowMs
+  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+  message: { error: 'Too many requests, please try again after 15 minutes.' }
+});
+
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 15, // Stricter limit for auth routes: 15 requests per 15 mins
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many authentication attempts, please try again after 15 minutes.' }
+});
+
 app.use(cors({
   origin: process.env.VITE_API_URL || '*',
   credentials: true
 }));
 app.use(express.json());
 
+// Apply global limiter to all /api routes
+app.use('/api', globalLimiter);
+
+// Health check
 app.get('/health', (_req: Request, res: Response) => {
   res.json({ status: 'ok' });
 });
@@ -29,7 +58,8 @@ app.get('/health', (_req: Request, res: Response) => {
 // SEO routes (sitemap.xml and robots.txt)
 app.use('/', sitemapRouter);
 
-app.use('/api/auth', authRouter);
+// API Routes
+app.use('/api/auth', authLimiter, authRouter); // Apply stricter limit to auth
 app.use('/api/questions', questionsRouter);
 app.use('/api/companies', companiesRouter);
 app.use('/api/topics', topicsRouter);
@@ -43,7 +73,6 @@ app.use(express.static(clientDistPath));
 
 // SPA catch-all: serve index.html for any non-API route (must be after all API routes)
 app.get('*', (req: Request, res: Response) => {
-  // Don't catch API routes that weren't matched
   if (req.path.startsWith('/api/')) {
     return res.status(404).json({ error: 'API endpoint not found' });
   }
