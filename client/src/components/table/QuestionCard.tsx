@@ -74,7 +74,7 @@ const QuestionCard = React.memo(({
           
           <button 
             onClick={() => onSelect(q)}
-            className={`text-sm font-medium hover:underline underline-offset-4 transition-all text-left text-[color:var(--text-main)] leading-snug ${isSolved ? 'font-bold' : ''}`}
+            className={`text-sm font-medium underline decoration-dotted underline-offset-4 hover:decoration-solid transition-all text-left text-[color:var(--text-main)] leading-snug cursor-pointer ${isSolved ? 'font-bold' : ''}`}
           >
             {q.title}
           </button>

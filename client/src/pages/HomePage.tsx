@@ -1,7 +1,17 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
+import { useUserStore } from '../store/userStore';
 import useSEO from '../hooks/useSEO';
 
 export default function HomePage() {
+  const { state: { currentUser } } = useUserStore();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (currentUser) {
+      navigate('/questions', { replace: true });
+    }
+  }, [currentUser, navigate]);
   const seoHelmet = useSEO({
     title: 'DSA Prep — Master Company-Wise Coding Interviews',
     description: 'Track your progress through 1700+ LeetCode problems, sorted by company frequency. High-contrast, performance-driven interview prep.',
@@ -82,7 +92,23 @@ export default function HomePage() {
         </section>
 
         {/* Footer */}
-        <footer className="px-6 py-12 border-t-8 border-[color:var(--border-main)] bg-[color:var(--primary)] text-center">
+        <footer className="px-6 py-12 border-t-8 border-[color:var(--border-main)] bg-[color:var(--primary)] flex flex-col items-center gap-8">
+            <a 
+              href="https://buymeacoffee.com/krish264" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="group flex items-center gap-3 px-6 py-3 bg-[#FFDD00] text-black font-black uppercase text-sm brutalist-no-radius border-2 border-[color:var(--border-main)] shadow-[4px_4px_0px_0px_var(--border-main)] hover:translate-x-1 hover:-translate-y-1 hover:shadow-[8px_8px_0px_0px_var(--border-main)] transition-all"
+            >
+              <svg className="w-6 h-6 transition-transform group-hover:scale-110" viewBox="0 0 24 24" fill="none">
+                <path d="M17 10h-1V9a1 1 0 00-1-1H5a1 1 0 00-1 1v9a2 2 0 002 2h9a2 2 0 002-2v-1h1a3 3 0 003-3v-2a3 3 0 00-3-3zm1 5a1 1 0 01-1 1h-1v-3h1a1 1 0 011 1v2z" fill="#111111"/>
+                <path d="M5 10h10v2H5z" fill="#4B3621"/>
+                <path d="M7 6c0-1 1-1 1-2S7 3 7 2" stroke="#111111" strokeWidth="1.5" strokeLinecap="round"/>
+                <path d="M10 6c0-1 1-1 1-2s-1-1-1-2" stroke="#111111" strokeWidth="1.5" strokeLinecap="round"/>
+                <path d="M13 6c0-1 1-1 1-2s-1-1-1-2" stroke="#111111" strokeWidth="1.5" strokeLinecap="round"/>
+                <path d="M4 19h11v1H4z" fill="#111111"/>
+              </svg>
+              Support the Labs
+            </a>
             <p className="text-[10px] font-black uppercase tracking-[0.4em] opacity-40">Built for the modern engineer. © 2026 DSA PREP LABS.</p>
         </footer>
       </div>

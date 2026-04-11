@@ -68,7 +68,7 @@ const QuestionRow = React.memo(({
         <div className="flex items-center gap-2 text-[color:var(--text-main)]">
           <button 
             onClick={() => onSelect(q)}
-            className={`font-medium hover:underline underline-offset-4 transition-all truncate text-left ${isSolved ? 'font-bold' : ''}`}
+            className={`font-medium underline decoration-dotted underline-offset-4 hover:decoration-solid transition-all truncate text-left cursor-pointer ${isSolved ? 'font-bold' : ''}`}
           >
             {q.title}
           </button>

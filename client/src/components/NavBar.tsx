@@ -44,7 +44,24 @@ export default function NavBar() {
         </div>
       </div>
 
-      <div className="flex items-center gap-2 md:gap-6 shrink-0">
+      <div className="flex items-center gap-2 md:gap-4 shrink-0">
+        <a 
+          href="https://buymeacoffee.com/krish264" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-full bg-[#FFDD00] border-2 border-[color:var(--border-main)] transition-transform hover:scale-110 active:scale-95 shadow-[2px_2px_0px_0px_var(--border-main)] md:shadow-[4px_4px_0px_0px_var(--border-main)] overflow-hidden shrink-0"
+          title="Buy me a coffee"
+        >
+          <svg className="w-6 h-6 md:w-8 md:h-8" viewBox="0 0 24 24" fill="none">
+            <path d="M17 10h-1V9a1 1 0 00-1-1H5a1 1 0 00-1 1v9a2 2 0 002 2h9a2 2 0 002-2v-1h1a3 3 0 003-3v-2a3 3 0 00-3-3zm1 5a1 1 0 01-1 1h-1v-3h1a1 1 0 011 1v2z" fill="#111111"/>
+            <path d="M5 10h10v2H5z" fill="#4B3621"/>
+            <path d="M7 6c0-1 1-1 1-2S7 3 7 2" stroke="#111111" strokeWidth="1.5" strokeLinecap="round"/>
+            <path d="M10 6c0-1 1-1 1-2s-1-1-1-2" stroke="#111111" strokeWidth="1.5" strokeLinecap="round"/>
+            <path d="M13 6c0-1 1-1 1-2s-1-1-1-2" stroke="#111111" strokeWidth="1.5" strokeLinecap="round"/>
+            <path d="M4 19h11v1H4z" fill="#111111"/>
+          </svg>
+        </a>
+
         {!currentUser ? (
           <Link 
             to="/auth" 
@@ -53,7 +70,7 @@ export default function NavBar() {
             Access
           </Link>
         ) : (
-          <div className="flex items-center gap-2 md:gap-6">
+          <div className="flex items-center gap-2 md:gap-4">
             <span className="hidden sm:inline bg-[color:var(--surface-active)] border-2 border-[color:var(--border-main)] px-3 py-1 text-[10px] font-black uppercase tracking-widest">
               @{currentUser.username}
             </span>
