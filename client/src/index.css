@@ -1,0 +1,132 @@
+@import "tailwindcss";
+
+/* Stable height chain — prevents layout collapse during re-renders */
+html, 
+body, 
+#root {
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+@theme {
+  --color-primary: var(--primary);
+  --color-secondary: var(--secondary);
+  --color-surface: var(--surface);
+  --color-surface-hover: var(--surface-hover);
+  --color-surface-active: var(--surface-active);
+  --color-border-main: var(--border-main);
+  --color-border-subtle: var(--border-subtle);
+  --color-text-main: var(--text-main);
+  --color-text-muted: var(--text-muted);
+  --color-text-inverse: var(--text-inverse);
+  --color-accent: var(--accent);
+  --color-accent-muted: var(--accent-muted);
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+:root[data-theme='white'] {
+  --primary: #f6f6f6;
+  --secondary: #ffffff;
+  --surface: #ffffff;
+  --surface-hover: #f0f0f0;
+  --surface-active: #e2e2e2;
+  --border-main: #000000;
+  --border-subtle: #e2e2e2;
+  --text-main: #000000;
+  --text-muted: #545454;
+  --text-inverse: #ffffff;
+  --accent: #276ef1;
+  --accent-muted: #e6f1fb;
+}
+
+:root[data-theme='dark'] {
+  --primary: #0a0a0a;
+  --secondary: #0a0a0a;
+  --surface: #0a0a0a;
+  --surface-hover: #1a1a1a;
+  --surface-active: #2a2a2a;
+  --border-main: #ffffff;
+  --border-subtle: #333333;
+  --text-main: #ffffff;
+  --text-muted: #a0a0a0;
+  --text-inverse: #0a0a0a;
+  --accent: #ffffff;
+  --accent-muted: #1a1a1a;
+}
+
+:root[data-theme='dark'] * {
+  border-radius: 0 !important;
+}
+
+html, body, #root {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+body {
+  background-color: var(--primary);
+  color: var(--text-main);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-family: var(--font-sans);
+}
+
+/* Base custom interactive layers mapping native tokens globally */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: var(--surface);
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--border-main);
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-main) var(--surface);
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--primary);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-subtle);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+/* Mobile filter drawer slide-in animation */
+@keyframes slide-in-left {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.animate-slide-in {
+  animation: slide-in-left 0.2s ease-out;
+}
+
+/* Touch-friendly tap targets on mobile */
+@media (max-width: 767px) {
+  button, a, label, select, input {
+    min-height: 36px;
+  }
+}
