@@ -41,17 +41,25 @@ app.use(helmet({
   crossOriginEmbedderPolicy: false, // allow logo images from external domains
 }));
 
-// ─── CORS: Locked to allowed origins ─────────────────────────────────────────
 const rawOrigins = process.env.ALLOWED_ORIGINS || '';
+const defaultOrigins = [
+  'http://localhost:5173',
+  'http://localhost:3000',
+  'http://localhost:5174',
+  'https://company-wise-dsa-prep.vercel.app'
+];
 const allowedOrigins = rawOrigins
-  ? rawOrigins.split(',').map(o => o.trim()).filter(Boolean)
-  : ['http://localhost:5173', 'http://localhost:3000', 'http://localhost:5174'];
+  ? rawOrigins.split(',').map(o => o.trim().replace(/\/$/, '')).filter(Boolean)
+  : defaultOrigins.map(o => o.replace(/\/$/, ''));
 
 app.use(cors({
   origin: (origin, callback) => {
     // Allow requests with no origin (curl, mobile apps, same-origin)
     if (!origin) return callback(null, true);
-    if (allowedOrigins.includes(origin)) return callback(null, true);
+    const normalizedOrigin = origin.replace(/\/$/, '');
+    if (allowedOrigins.includes(normalizedOrigin) || allowedOrigins.includes('*')) {
+      return callback(null, true);
+    }
     callback(new Error(`CORS: origin "${origin}" not allowed`));
   },
   credentials: true,
