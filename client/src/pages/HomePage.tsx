@@ -13,10 +13,47 @@ export default function HomePage() {
     }
   }, [currentUser, navigate]);
   const seoHelmet = useSEO({
-    title: 'DSA Prep — Master Company-Wise Coding Interviews',
-    description: 'Track your progress through 1700+ LeetCode problems, sorted by company frequency. High-contrast, performance-driven interview prep.',
-    keywords: 'DSA prep, LeetCode tracker, company questions, interview preparation, software engineering',
+    title: 'Company Wise DSA Questions — Master 17,000+ LeetCode Problems',
+    description: 'Track your progress through 17,000+ LeetCode problems sorted by company frequency for Google, Amazon, Meta, Microsoft, Apple, Uber & 400+ tech companies.',
+    keywords: 'company wise DSA questions, LeetCode company questions, Google DSA questions, Amazon coding interview questions, Meta interview questions, DSA tracker',
     url: '/',
+    jsonLd: [
+      {
+        '@context': 'https://schema.org',
+        '@type': 'EducationalApplication',
+        'name': 'DSA Prep — Company Wise Questions',
+        'operatingSystem': 'Web',
+        'applicationCategory': 'EducationalApplication',
+        'offers': {
+          '@type': 'Offer',
+          'price': '0',
+          'priceCurrency': 'USD'
+        },
+        'description': 'Interactive coding interview prep platform with 17,000+ LeetCode questions categorized by company frequency across 428 top tech companies.'
+      },
+      {
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        'mainEntity': [
+          {
+            '@type': 'Question',
+            'name': 'What are company wise DSA questions?',
+            'acceptedAnswer': {
+              '@type': 'Answer',
+              'text': 'Company wise DSA questions are Data Structures and Algorithms problems curated based on their real frequency of appearing in technical coding interviews at specific companies like Google, Amazon, Meta, and Microsoft.'
+            }
+          },
+          {
+            '@type': 'Question',
+            'name': 'How can I prepare for company-specific coding interviews?',
+            'acceptedAnswer': {
+              '@type': 'Answer',
+              'text': 'You can use DSA Prep to filter 17,000+ LeetCode problems by target company, problem difficulty (Easy, Medium, Hard), and topics (Dynamic Programming, Graphs, Trees, Arrays), and sync your solved status directly from LeetCode.'
+            }
+          }
+        ]
+      }
+    ]
   });
 
   return (

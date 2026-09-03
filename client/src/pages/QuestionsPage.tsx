@@ -30,10 +30,23 @@ export default function QuestionsPage() {
   const hasAnyFilter = filters.companies.length > 0 || filters.topics.length > 0 || !!filters.difficulty || !!filters.search;
 
   const seoHelmet = useSEO({
-    title: activeCompany ? `${activeCompany} DSA Questions — LeetCode Interview Problems` : 'Company Wise DSA Questions — LeetCode Problem Tracker',
-    description: activeCompany ? `LeetCode questions frequently asked in ${activeCompany} interviews.` : 'Browse LeetCode questions asked by top companies.',
-    keywords: 'company wise DSA questions, LeetCode company questions, interview problems',
+    title: activeCompany ? `${activeCompany} DSA Questions & Frequency — LeetCode Interview Prep` : '17,000+ Company Wise DSA Questions — LeetCode Problem Tracker',
+    description: activeCompany ? `LeetCode questions frequently asked in ${activeCompany} coding interviews sorted by frequency.` : 'Search and filter 17,000+ LeetCode problems by company frequency (Google, Amazon, Meta, Microsoft, Apple, Uber & 400+ companies).',
+    keywords: 'company wise DSA questions, LeetCode company questions, interview problems, Google DSA, Amazon LeetCode, Meta interview questions',
     url: `/questions${activeCompany ? `?company=${encodeURIComponent(activeCompany)}` : ''}`,
+    jsonLd: [
+      {
+        '@context': 'https://schema.org',
+        '@type': 'CollectionPage',
+        'name': activeCompany ? `${activeCompany} DSA Questions` : 'Company Wise DSA Questions Problem Bank',
+        'description': 'Browse 17,000+ Data Structures & Algorithms problems categorized by top tech company frequency.',
+        'hasPart': questions.slice(0, 10).map(q => ({
+          '@type': 'Question',
+          'name': q.title,
+          'url': q.link
+        }))
+      }
+    ]
   });
 
   useEffect(() => {

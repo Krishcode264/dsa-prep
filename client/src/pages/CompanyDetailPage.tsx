@@ -43,10 +43,71 @@ export default function CompanyDetailPage() {
   const questionsError = queryQuestionsError ? queryQuestionsError.message : null;
 
   const seoHelmet = useSEO({
-    title: `${decodedCompanyName} LeetCode Questions & Interview Prep — DSA Prep`,
-    description: `Practice top LeetCode questions asked in ${decodedCompanyName} coding interviews sorted by frequency.`,
-    keywords: `${decodedCompanyName} questions, ${decodedCompanyName} LeetCode, DSA prep`,
+    title: `${decodedCompanyName} LeetCode Questions & Interview Prep (${totalQuestions} Problems)`,
+    description: `Practice ${totalQuestions}+ LeetCode DSA questions asked in ${decodedCompanyName} coding interviews sorted by real interview frequency. Filter by difficulty (Easy, Medium, Hard) and status.`,
+    keywords: `${decodedCompanyName} DSA questions, ${decodedCompanyName} LeetCode frequency, ${decodedCompanyName} coding interview problems, ${decodedCompanyName} software engineer interview`,
     url: `/companies/${encodeURIComponent(decodedCompanyName)}`,
+    jsonLd: [
+      {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        'itemListElement': [
+          {
+            '@type': 'ListItem',
+            'position': 1,
+            'name': 'Home',
+            'item': 'https://company-wise-dsa-prep.vercel.app/'
+          },
+          {
+            '@type': 'ListItem',
+            'position': 2,
+            'name': 'Companies',
+            'item': 'https://company-wise-dsa-prep.vercel.app/companies'
+          },
+          {
+            '@type': 'ListItem',
+            'position': 3,
+            'name': decodedCompanyName,
+            'item': `https://company-wise-dsa-prep.vercel.app/companies/${encodeURIComponent(decodedCompanyName)}`
+          }
+        ]
+      },
+      {
+        '@context': 'https://schema.org',
+        '@type': 'ItemList',
+        'name': `${decodedCompanyName} Frequently Asked LeetCode Questions`,
+        'description': `Top Data Structures & Algorithms questions asked in ${decodedCompanyName} technical interviews.`,
+        'numberOfItems': totalQuestions,
+        'itemListElement': questions.slice(0, 15).map((q, idx) => ({
+          '@type': 'ListItem',
+          'position': idx + 1,
+          'name': q.title,
+          'url': q.link
+        }))
+      },
+      {
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        'mainEntity': [
+          {
+            '@type': 'Question',
+            'name': `How many DSA questions are in the ${decodedCompanyName} problem bank?`,
+            'acceptedAnswer': {
+              '@type': 'Answer',
+              'text': `There are ${totalQuestions} curated LeetCode questions for ${decodedCompanyName} sorted by frequency of appearance in technical interviews.`
+            }
+          },
+          {
+            '@type': 'Question',
+            'name': `What difficulty levels are asked in ${decodedCompanyName} interviews?`,
+            'acceptedAnswer': {
+              '@type': 'Answer',
+              'text': `${decodedCompanyName} coding interviews cover Easy, Medium, and Hard LeetCode problems, with a heavy emphasis on Medium and Hard data structures and algorithm challenges.`
+            }
+          }
+        ]
+      }
+    ]
   });
 
   // Reset page when filters change

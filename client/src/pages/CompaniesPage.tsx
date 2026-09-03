@@ -15,10 +15,39 @@ export default function CompaniesPage() {
   const [search, setSearch] = useState('');
 
   const seoHelmet = useSEO({
-    title: 'Company Wise LeetCode Questions & DSA Problems — DSA Prep',
-    description: 'Explore top tech companies like Amazon, Google, Meta, Apple, Microsoft, and TikTok sorted by frequency and problem count.',
-    keywords: 'company wise DSA, LeetCode company questions, Amazon questions, Google questions, Meta questions',
+    title: 'Company Wise LeetCode Questions Directory — 428 Tech Companies',
+    description: 'Browse coding interview questions asked by 428+ top tech companies including Google, Amazon, Meta, Microsoft, Apple, Uber, TikTok & Netflix.',
+    keywords: 'company wise DSA questions, LeetCode company directory, Google interview questions, Amazon DSA questions, Meta LeetCode problems, FAANG coding questions',
     url: '/companies',
+    jsonLd: [
+      {
+        '@context': 'https://schema.org',
+        '@type': 'ItemList',
+        'name': 'Top Company-Wise Coding Interview Questions Directory',
+        'description': 'Directory of 428 top tech companies with curated LeetCode problem sets sorted by interview frequency.',
+        'numberOfItems': companies.length || 428,
+        'itemListElement': companies.slice(0, 20).map((comp, idx) => ({
+          '@type': 'ListItem',
+          'position': idx + 1,
+          'name': `${comp.name} LeetCode Questions`,
+          'url': `https://company-wise-dsa-prep.vercel.app/companies/${encodeURIComponent(comp.name)}`
+        }))
+      },
+      {
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        'mainEntity': [
+          {
+            '@type': 'Question',
+            'name': 'Which companies have the most asked LeetCode questions?',
+            'acceptedAnswer': {
+              '@type': 'Answer',
+              'text': 'Google, Amazon, Meta, Microsoft, Uber, TikTok, and Oracle have the largest repositories of frequently asked LeetCode coding interview questions.'
+            }
+          }
+        ]
+      }
+    ]
   });
 
   const filteredCompanies = useMemo(() => {
