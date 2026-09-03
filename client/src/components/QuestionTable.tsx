@@ -8,9 +8,11 @@ import QuestionCard from './table/QuestionCard';
 interface QuestionTableProps {
   questions: Question[];
   activeCompanies: string[];
+  page?: number;
+  limit?: number;
 }
 
-export default function QuestionTable({ questions, activeCompanies }: QuestionTableProps) {
+export default function QuestionTable({ questions, activeCompanies, page = 1, limit = 50 }: QuestionTableProps) {
   const solvedIds = useSolvedIds();
   const handleToggle = useToggleSolved();
   const [selectedQuestion, setSelectedQuestion] = useState<Question | null>(null);
@@ -18,6 +20,8 @@ export default function QuestionTable({ questions, activeCompanies }: QuestionTa
   const handleSelect = useCallback((q: Question) => {
     setSelectedQuestion(q);
   }, []);
+
+  const startIndex = (page - 1) * limit;
 
   return (
     <div className="bg-[color:var(--surface)] overflow-hidden w-full text-[color:var(--text-main)] border border-[color:var(--border-main)] brutalist-no-radius">
@@ -28,7 +32,7 @@ export default function QuestionTable({ questions, activeCompanies }: QuestionTa
             <QuestionCard 
               key={q.id} 
               question={q}
-              index={index} 
+              index={startIndex + index} 
               isSolved={solvedIds.has(q.id)}
               onToggle={handleToggle}
               onSelect={handleSelect}
@@ -65,7 +69,7 @@ export default function QuestionTable({ questions, activeCompanies }: QuestionTa
               <QuestionRow 
                 key={q.id}
                 question={q}
-                index={index}
+                index={startIndex + index}
                 isSolved={solvedIds.has(q.id)}
                 onToggle={handleToggle}
                 onSelect={handleSelect}

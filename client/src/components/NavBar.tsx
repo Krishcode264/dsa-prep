@@ -20,7 +20,7 @@ export default function NavBar() {
     <nav className="h-16 md:h-20 border-b-4 md:border-b-8 border-[color:var(--border-main)] flex items-center justify-between px-4 sm:px-6 md:px-8 bg-[color:var(--surface)] shrink-0 z-50">
       <div className="flex items-center gap-4 md:gap-8 overflow-x-auto no-scrollbar">
         <Link to="/" className="flex items-center gap-2 group shrink-0">
-          <div className="w-8 h-8 md:w-10 md:h-10 border-2 md:border-4 border-[color:var(--border-main)] flex items-center justify-center bg-[color:var(--surface-active)] transition-transform group-hover:rotate-6">
+          <div className="w-8 h-8 md:w-10 md:h-10 border-2 md:border-4 border-[color:var(--border-main)] flex items-center justify-center bg-[color:var(--surface-active)] transition-transform duration-200 group-hover:rotate-6 will-change-transform origin-center isolate">
             <svg className="w-4 h-4 md:w-5 md:h-5 text-[color:var(--text-main)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
           </div>
           <span className="text-sm md:text-xl font-black uppercase tracking-tighter text-[color:var(--text-main)]">DSA PREP.</span>
@@ -32,6 +32,13 @@ export default function NavBar() {
             className={`text-[10px] md:text-xs font-black uppercase tracking-widest px-3 py-1.5 border-2 border-[color:var(--border-main)] brutalist-no-radius transition-all ${location.pathname === '/questions' ? activeClass : inactiveClass}`}
           >
             Explore
+          </Link>
+
+          <Link 
+            to="/companies" 
+            className={`text-[10px] md:text-xs font-black uppercase tracking-widest px-3 py-1.5 border-2 border-[color:var(--border-main)] brutalist-no-radius transition-all ${location.pathname.startsWith('/companies') ? activeClass : inactiveClass}`}
+          >
+            Companies
           </Link>
           
           {(currentUser || isGuest) && (

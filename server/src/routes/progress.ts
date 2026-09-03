@@ -91,29 +91,44 @@ router.post('/:userId/:questionId', async (req, res, next) => {
 router.post('/:userId/sync', async (req, res, next) => {
   try {
     const userId = parseInt(req.params.userId);
-    const { questionIds } = req.body; // Array of question IDs
+    const { questionIds } = req.body;
 
-    if (isNaN(userId) || !Array.isArray(questionIds)) {
-      return res.status(400).json({ error: 'Invalid data' });
+    if (isNaN(userId) || userId < 1) {
+      return res.status(400).json({ error: 'Invalid user ID' });
     }
-
+    if (!Array.isArray(questionIds)) {
+      return res.status(400).json({ error: 'questionIds must be an array' });
+    }
     if (questionIds.length === 0) {
       return res.json({ success: true, synced: 0 });
     }
+    // Cap array size to prevent DoS via huge payloads
+    if (questionIds.length > 5000) {
+      return res.status(400).json({ error: 'Too many question IDs (max 5000)' });
+    }
+    // Validate every entry is a positive integer
+    const validIds: number[] = questionIds
+      .map((id: any) => parseInt(id))
+      .filter((id: number) => !isNaN(id) && id > 0);
 
-    // Bulk insert with ON CONFLICT to ignore duplicates
-    const values = questionIds.map(id => `(${userId}, ${id}, true, NOW())`).join(', ');
-    const query = `
+    if (validIds.length === 0) {
+      return res.json({ success: true, synced: 0 });
+    }
+
+    // ✅ Parameterized bulk upsert via unnest — zero SQL injection risk
+    const result = await pool.query(`
       INSERT INTO user_progress (user_id, question_id, solved, solved_at)
-      VALUES ${values}
+      SELECT $1, q_id, true, NOW()
+      FROM unnest($2::int[]) AS q_id
+      -- Only insert for question IDs that actually exist
+      WHERE q_id IN (SELECT id FROM questions)
       ON CONFLICT (user_id, question_id) DO UPDATE SET
         solved = true,
         solved_at = COALESCE(user_progress.solved_at, EXCLUDED.solved_at)
       RETURNING question_id
-    `;
-    
-    const result = await pool.query(query);
-    res.json({ success: true, synced: result.rowCount });
+    `, [userId, validIds]);
+
+    res.json({ success: true, synced: result.rowCount ?? 0 });
   } catch (err) {
     next(err);
   }

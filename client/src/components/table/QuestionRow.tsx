@@ -52,11 +52,14 @@ const QuestionRow = React.memo(({
         {index + 1}
       </td>
       <td className="px-4 lg:px-6 py-3 lg:py-4 text-center">
-        <label className="inline-flex items-center cursor-pointer">
+        <label className="inline-flex items-center cursor-pointer" onClick={(e) => e.stopPropagation()}>
           <input
             type="checkbox"
             checked={isSolved}
-            onChange={() => onToggle(q.id, isSolved)}
+            onChange={(e) => {
+              e.stopPropagation();
+              onToggle(q.id, isSolved);
+            }}
             className="peer sr-only"
           />
           <div className={`w-5 h-5 flex items-center justify-center transition-all duration-200 border border-[color:var(--border-main)] ${isSolved ? 'bg-[color:var(--text-main)] text-[color:var(--primary)]' : 'bg-[color:var(--surface)] text-transparent group-hover:bg-[color:var(--surface-hover)]'}`}>
@@ -111,12 +114,14 @@ const QuestionRow = React.memo(({
     </tr>
   );
 }, (prev, next) => {
-  // Only re-render if the question itself or its solved status or activeCompanies change
+  const sameComps = prev.activeCompanies.length === next.activeCompanies.length &&
+    prev.activeCompanies.every((c, i) => c === next.activeCompanies[i]);
+
   return (
     prev.isSolved === next.isSolved && 
     prev.question.id === next.question.id &&
-    prev.activeCompanies === next.activeCompanies &&
-    prev.index === next.index
+    prev.index === next.index &&
+    sameComps
   );
 });
 

@@ -1,12 +1,22 @@
 import { useQuery } from '@tanstack/react-query';
-import { fetchCompanies, fetchTopics } from '../api/client';
+import { fetchCompanies, fetchCompanyByName, fetchTopics } from '../api/client';
 
-export function useCompanies() {
+export function useCompanies(userId?: number) {
   return useQuery({
-    queryKey: ['companies'],
-    queryFn: fetchCompanies,
-    staleTime: 30 * 60 * 1000,   // Companies rarely change — 30 min
-    gcTime: 60 * 60 * 1000,
+    queryKey: ['companies', userId],
+    queryFn: () => fetchCompanies(userId),
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+  });
+}
+
+export function useCompanyDetail(companyName: string, userId?: number) {
+  return useQuery({
+    queryKey: ['company', companyName, userId],
+    queryFn: () => fetchCompanyByName(companyName, userId),
+    enabled: !!companyName,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
   });
 }
 

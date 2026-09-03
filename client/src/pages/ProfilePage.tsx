@@ -5,6 +5,7 @@ import StatsCards from '../components/StatsCards';
 import DifficultyChart from '../components/DifficultyChart';
 import RecentActivity from '../components/RecentActivity';
 import CompanyBreakdown from '../components/CompanyBreakdown';
+import LeetCodeSync from '../components/LeetCodeSync';
 import useSEO from '../hooks/useSEO';
 
 export default function ProfilePage() {
@@ -72,6 +73,9 @@ export default function ProfilePage() {
           </div>
 
           <StatsCards stats={stats} />
+
+          <LeetCodeSync userId={currentUser.id} />
+
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 items-stretch">
             <div className="lg:col-span-1 flex flex-col gap-4 sm:gap-6 h-full">

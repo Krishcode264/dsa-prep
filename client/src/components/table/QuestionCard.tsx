@@ -48,11 +48,14 @@ const QuestionCard = React.memo(({
     <div className={`p-3 border-b border-[color:var(--border-main)] transition-colors ${isSolved ? 'bg-[color:var(--surface-active)]' : ''}`}>
       <div className="flex items-start gap-2.5">
         {/* Checkbox */}
-        <label className="inline-flex items-center cursor-pointer mt-0.5 shrink-0">
+        <label className="inline-flex items-center cursor-pointer mt-0.5 shrink-0" onClick={(e) => e.stopPropagation()}>
           <input
             type="checkbox"
             checked={isSolved}
-            onChange={() => onToggle(q.id, isSolved)}
+            onChange={(e) => {
+              e.stopPropagation();
+              onToggle(q.id, isSolved);
+            }}
             className="peer sr-only"
           />
           <div className={`w-5 h-5 flex items-center justify-center transition-all duration-200 border border-[color:var(--border-main)] ${isSolved ? 'bg-[color:var(--text-main)] text-[color:var(--primary)]' : 'bg-[color:var(--surface)] text-transparent'}`}>
@@ -113,11 +116,14 @@ const QuestionCard = React.memo(({
     </div>
   );
 }, (prev, next) => {
+  const sameComps = prev.activeCompanies.length === next.activeCompanies.length &&
+    prev.activeCompanies.every((c, i) => c === next.activeCompanies[i]);
+
   return (
     prev.isSolved === next.isSolved && 
     prev.question.id === next.question.id &&
-    prev.activeCompanies === next.activeCompanies &&
-    prev.index === next.index
+    prev.index === next.index &&
+    sameComps
   );
 });
 

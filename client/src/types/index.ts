@@ -8,6 +8,14 @@ export interface User {
 export interface Company {
   id: number;
   name: string;
+  total_questions?: number;
+  solved_questions?: number;
+  easy_total?: number;
+  medium_total?: number;
+  hard_total?: number;
+  easy_solved?: number;
+  medium_solved?: number;
+  hard_solved?: number;
 }
 
 export interface QuestionCompany {
@@ -51,6 +59,8 @@ export interface QuestionFilters {
   topicMatch?: 'ANY' | 'ALL';
   page?: number;
   limit?: number;
+  status?: 'all' | 'solved' | 'unsolved';
+  userId?: number;
 }
 
 export interface ProgressSummary {

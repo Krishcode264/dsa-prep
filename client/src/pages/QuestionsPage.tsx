@@ -4,17 +4,25 @@ import QuestionTable from '../components/QuestionTable';
 import SEOIntroBlock from '../components/SEOIntroBlock';
 import { useQuestions } from '../hooks/useQuestions';
 import { useFilters } from '../hooks/useFilters';
+import { useUserStore } from '../store/userStore';
 import useSEO from '../hooks/useSEO';
 
 export default function QuestionsPage() {
   const filtersHook = useFilters();
   const { filters } = filtersHook;
+  const { state: { currentUser } } = useUserStore();
   
   const [page, setPage] = useState(1);
   const [showFilters, setShowFilters] = useState(false);
   const limit = 50;
 
-  const { questions, pagination, loading, error, isPlaceholderData } = useQuestions(page, limit, filters);
+  // Merge userId + status into the query filters
+  const activeFilters = {
+    ...filters,
+    userId: currentUser?.id,
+  };
+
+  const { questions, pagination, loading, error, isPlaceholderData } = useQuestions(page, limit, activeFilters);
   const { total } = pagination;
   const totalPages = Math.ceil(total / limit);
 
@@ -30,7 +38,7 @@ export default function QuestionsPage() {
 
   useEffect(() => {
     setPage(1);
-  }, [filters.companies, filters.topics, filters.difficulty, filters.search, filters.topicMatch]);
+  }, [filters.companies, filters.topics, filters.difficulty, filters.search, filters.topicMatch, filters.status]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -44,7 +52,8 @@ export default function QuestionsPage() {
     ...(filters.companies?.map(c => ({k: 'companies', v: c})) || []),
     ...(filters.topics?.map(t => ({k: 'topics', v: t})) || []),
     ...(filters.difficulty ? [{k: 'difficulty', v: filters.difficulty}] : []),
-    ...(filters.search ? [{k: 'search', v: `"${filters.search}"`}] : [])
+    ...(filters.search ? [{k: 'search', v: `"${filters.search}"`}] : []),
+    ...(filters.status && filters.status !== 'all' ? [{k: 'status', v: filters.status}] : []),
   ];
 
   const removeFilter = (key: string, val: string) => {
@@ -52,6 +61,7 @@ export default function QuestionsPage() {
     if (key === 'search') filtersHook.updateFilters({ search: '' });
     if (key === 'companies') filtersHook.toggleCompany(val);
     if (key === 'topics') filtersHook.toggleTopic(val);
+    if (key === 'status') filtersHook.updateFilters({ status: 'all' });
   };
 
   const activeCount = filters.companies.length + filters.topics.length + (filters.difficulty ? 1 : 0);
@@ -83,43 +93,49 @@ export default function QuestionsPage() {
           </div>
         )}
         
-        {/* Main Content Area: Use flex-1 min-h-0 to avoid growing past viewport */}
-        <div className="flex flex-col flex-1 min-h-0 min-w-0 bg-[color:var(--primary)] overflow-hidden">
-          <div className="p-4 sm:p-6 md:p-8 flex flex-col flex-1 min-h-0">
-            <header className="mb-4 shrink-0">
+        {/* Main Content Area: Vertically scrollable container so intro text scrolls away and table expands */}
+        <div className="flex-1 min-h-0 min-w-0 bg-[color:var(--primary)] overflow-y-auto custom-scrollbar">
+          <div className="p-4 sm:p-6 md:p-8 flex flex-col min-h-full">
+            
+            {/* Header: SEO Intro Block (Scrolls away as user scrolls down) */}
+            <header className="mb-2 shrink-0">
               <SEOIntroBlock activeCompany={activeCompany} hasAnyFilter={hasAnyFilter} />
-              <div className="flex items-center gap-3 mt-4">
+            </header>
+
+            {/* Sticky Control Bar: Pinned at top when intro scrolls off screen */}
+            <div className="sticky top-0 z-30 bg-[color:var(--primary)] pt-2 pb-3 flex flex-col gap-3">
+              <div className="flex items-center gap-3">
                 <button onClick={() => setShowFilters(true)} className="md:hidden px-3 py-1.5 border border-[color:var(--border-main)] text-[10px] font-bold uppercase transition-colors hover:bg-[color:var(--surface-hover)] bg-[color:var(--surface)]">Filters</button>
                 <h2 className="text-xl md:text-3xl font-extrabold uppercase tracking-widest text-[color:var(--text-main)] border-b-4 border-[color:var(--border-main)] inline-block pb-1">
                   {activeCompany ? `${activeCompany} Questions` : 'Problem Bank'}
                 </h2>
               </div>
-            </header>
 
-            {/* Filter Summary Header: Stable positioning */}
-            <div className="mb-4 flex flex-wrap items-center gap-2 text-xs text-[color:var(--text-muted)] bg-[color:var(--surface)] p-3 border border-[color:var(--border-main)] relative shrink-0">
-              <span className="font-bold text-[color:var(--text-main)] uppercase">{total} matches <span className="text-[10px] font-normal opacity-50 ml-1">(Page {page})</span></span>
-              {isPlaceholderData && <span className="absolute right-3 text-[10px] uppercase font-bold text-[color:var(--text-muted)] animate-pulse">Syncing...</span>}
-              <div className="flex flex-wrap gap-1.5 ml-2">
-                {activeFiltersStr.map(({k, v}) => (
-                  <span key={`${k}-${v}`} className="inline-flex items-center gap-1.5 px-2 py-0.5 bg-[color:var(--surface-active)] border border-[color:var(--border-main)] text-[color:var(--text-main)] text-[10px] font-bold uppercase">
-                    {v}
-                    <button onClick={() => removeFilter(k, v)} className="hover:text-red-500 transition-colors">×</button>
-                  </span>
-                ))}
+              {/* Filter Summary Header: Stable positioning */}
+              <div className="flex flex-wrap items-center gap-2 text-xs text-[color:var(--text-muted)] bg-[color:var(--surface)] p-3 border border-[color:var(--border-main)] relative shadow-sm">
+                <span className="font-bold text-[color:var(--text-main)] uppercase">{total} matches <span className="text-[10px] font-normal opacity-50 ml-1">(Page {page})</span></span>
+                {isPlaceholderData && <span className="absolute right-3 text-[10px] uppercase font-bold text-[color:var(--text-muted)] animate-pulse">Syncing...</span>}
+                <div className="flex flex-wrap gap-1.5 ml-2">
+                  {activeFiltersStr.map(({k, v}) => (
+                    <span key={`${k}-${v}`} className="inline-flex items-center gap-1.5 px-2 py-0.5 bg-[color:var(--surface-active)] border border-[color:var(--border-main)] text-[color:var(--text-main)] text-[10px] font-bold uppercase">
+                      {v}
+                      <button onClick={() => removeFilter(k, v)} className="hover:text-red-500 transition-colors">×</button>
+                    </span>
+                  ))}
+                </div>
+                {activeCount > 0 && <button onClick={filtersHook.clearAll} className="ml-auto text-[10px] uppercase font-bold hover:underline transition-all">Clear all</button>}
               </div>
-              {activeCount > 0 && <button onClick={filtersHook.clearAll} className="ml-auto text-[10px] uppercase font-bold hover:underline transition-all">Clear all</button>}
             </div>
             
-            {/* Scrollable Container: flex-1 for rigid fill */}
-            <div className="flex-1 overflow-y-auto custom-scrollbar min-h-0 bg-[color:var(--surface)] border border-[color:var(--border-main)] relative shadow-inner">
+            {/* Table Container: Expands to fill available vertical space */}
+            <div className="flex-1 bg-[color:var(--surface)] border border-[color:var(--border-main)] relative shadow-inner mt-1">
               {loading && !isPlaceholderData ? (
-                <div className="flex flex-col gap-4 justify-center items-center h-full text-[color:var(--text-main)]">
+                <div className="flex flex-col gap-4 justify-center items-center py-24 text-[color:var(--text-main)]">
                   <svg className="animate-spin h-8 w-8 text-[color:var(--border-main)]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
                   <span className="font-bold uppercase tracking-widest text-sm">Fetching problems...</span>
                 </div>
               ) : error ? (
-                <div className="p-12 text-center h-full flex flex-col items-center justify-center">
+                <div className="p-12 text-center py-24 flex flex-col items-center justify-center">
                   <div className="border-2 border-[color:var(--border-main)] bg-[color:var(--surface-active)] p-6 max-w-sm">
                     <p className="font-extrabold uppercase text-[color:var(--text-error)]">Sync Failed</p>
                     <p className="text-xs mt-3 opacity-75 font-bold uppercase break-words">{error.message}</p>
@@ -129,7 +145,7 @@ export default function QuestionsPage() {
               ) : (
                 <div className="flex flex-col min-h-full">
                   <div className="flex-1">
-                    <QuestionTable questions={questions} activeCompanies={filters.companies} />
+                    <QuestionTable questions={questions} activeCompanies={filters.companies} page={page} limit={limit} />
                   </div>
                   
                   {total > 0 && (

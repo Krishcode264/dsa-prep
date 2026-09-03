@@ -37,12 +37,21 @@ export async function fetchQuestions(page: number, limit: number, filters: Quest
   if (filters.topics) {
     filters.topics.forEach(t => params.append('topic', t));
   }
+  if (filters.status && filters.status !== 'all') params.append('status', filters.status);
+  if (filters.userId) params.append('userId', filters.userId.toString());
 
   return request<QuestionsResponse>(`/api/questions?${params.toString()}`);
 }
 
-export async function fetchCompanies(): Promise<Company[]> {
-  const res = await request<{ data: Company[] }>('/api/companies');
+export async function fetchCompanies(userId?: number): Promise<Company[]> {
+  const url = userId ? `/api/companies?userId=${userId}` : '/api/companies';
+  const res = await request<{ data: Company[] }>(url);
+  return res.data;
+}
+
+export async function fetchCompanyByName(companyName: string, userId?: number): Promise<Company> {
+  const url = userId ? `/api/companies/${encodeURIComponent(companyName)}?userId=${userId}` : `/api/companies/${encodeURIComponent(companyName)}`;
+  const res = await request<{ data: Company }>(url);
   return res.data;
 }
 

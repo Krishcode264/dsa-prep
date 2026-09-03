@@ -7,6 +7,8 @@ import ProtectedRoute from './components/ProtectedRoute';
 // Pages
 import HomePage from './pages/HomePage';
 import QuestionsPage from './pages/QuestionsPage';
+import CompaniesPage from './pages/CompaniesPage';
+import CompanyDetailPage from './pages/CompanyDetailPage';
 import AuthPage from './pages/AuthPage';
 import ProfilePage from './pages/ProfilePage';
 
@@ -47,6 +49,8 @@ export default function App() {
             {/* Public Routes */}
             <Route path="/" element={<HomePage />} />
             <Route path="/auth" element={<AuthPage />} />
+            <Route path="/companies" element={<CompaniesPage />} />
+            <Route path="/companies/:companyName" element={<CompanyDetailPage />} />
             
             {/* Protected Routes */}
             <Route path="/questions" element={

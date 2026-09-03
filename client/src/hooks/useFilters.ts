@@ -7,6 +7,7 @@ export interface FilterState {
   topicMatch: 'ALL' | 'ANY';
   difficulty?: string;
   search?: string;
+  status: 'all' | 'solved' | 'unsolved';
 }
 
 export function useFilters() {
@@ -19,6 +20,7 @@ export function useFilters() {
       topicMatch: (searchParams.get('topicMatch') as 'ALL' | 'ANY') || 'ANY',
       difficulty: searchParams.get('difficulty') || undefined,
       search: searchParams.get('search') || undefined,
+      status: (searchParams.get('status') as 'all' | 'solved' | 'unsolved') || 'all',
     };
   });
 
@@ -29,6 +31,7 @@ export function useFilters() {
     if (filters.topicMatch !== 'ANY') params.set('topicMatch', filters.topicMatch);
     if (filters.difficulty) params.set('difficulty', filters.difficulty);
     if (filters.search) params.set('search', filters.search);
+    if (filters.status && filters.status !== 'all') params.set('status', filters.status);
     
     setSearchParams(params, { replace: true });
   }, [filters, setSearchParams]);
@@ -62,6 +65,7 @@ export function useFilters() {
       topicMatch: 'ANY',
       difficulty: undefined,
       search: undefined,
+      status: 'all',
     });
   };
 
@@ -70,7 +74,8 @@ export function useFilters() {
     filters.topics, 
     filters.difficulty, 
     filters.search, 
-    filters.topicMatch
+    filters.topicMatch,
+    filters.status,
   ]);
 
   return { filters: memoFilters, updateFilters, toggleCompany, toggleTopic, clearAll };

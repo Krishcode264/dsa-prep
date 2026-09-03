@@ -6,7 +6,8 @@ const router = express.Router();
 
 router.get('/', async (req, res, next) => {
   try {
-    const { company, difficulty, topic, search, topicMatch, page: pageQ, limit: limitQ } = req.query;
+    const { company, difficulty, topic, search, topicMatch, page: pageQ, limit: limitQ, userId: userIdQ, status } = req.query;
+    const userId = userIdQ ? parseInt(userIdQ as string) : null;
     
     const page = Math.max(1, parseInt(pageQ as string) || 1);
     const limit = Math.min(100, Math.max(1, parseInt(limitQ as string) || 50));
@@ -43,6 +44,23 @@ router.get('/', async (req, res, next) => {
     if (search) {
       values.push(`%${search}%`);
       whereClauses.push(`q.title ILIKE $${values.length}`);
+    }
+
+    // Filter by solved/unsolved status — requires userId
+    if (userId && (status === 'solved' || status === 'unsolved')) {
+      values.push(userId);
+      const userIdParam = `$${values.length}`;
+      if (status === 'solved') {
+        whereClauses.push(`EXISTS (
+          SELECT 1 FROM user_progress up
+          WHERE up.question_id = q.id AND up.user_id = ${userIdParam} AND up.solved = true
+        )`);
+      } else {
+        whereClauses.push(`NOT EXISTS (
+          SELECT 1 FROM user_progress up
+          WHERE up.question_id = q.id AND up.user_id = ${userIdParam} AND up.solved = true
+        )`);
+      }
     }
 
     const whereSql = whereClauses.length > 0 ? `WHERE ${whereClauses.join(' AND ')}` : '';

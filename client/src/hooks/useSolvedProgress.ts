@@ -96,9 +96,11 @@ export function useToggleSolved() {
     },
     onSettled: (_data, _err, vars) => {
       inflightRef.current.delete(vars.questionId);
-      // Invalidate stats/progress so profile page refreshes
+      // Invalidate stats/progress/companies so profile and company pages refresh automatically
       queryClient.invalidateQueries({ queryKey: ['stats'] });
       queryClient.invalidateQueries({ queryKey: ['progress'] });
+      queryClient.invalidateQueries({ queryKey: ['companies'] });
+      queryClient.invalidateQueries({ queryKey: ['company'] });
     },
   });
 

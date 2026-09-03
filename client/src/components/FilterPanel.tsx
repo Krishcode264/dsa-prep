@@ -1,5 +1,6 @@
 import { useFilters } from '../hooks/useFilters';
 import { useCompanies, useTopics } from '../hooks/useReferenceData';
+import { useUserStore } from '../store/userStore';
 import CollapsibleSection from './filters/CollapsibleSection';
 import CompanyFilter from './filters/CompanyFilter';
 import TopicFilter from './filters/TopicFilter';
@@ -10,6 +11,7 @@ interface FilterPanelProps {
 
 export default function FilterPanel({ filtersHook }: FilterPanelProps) {
   const { filters, updateFilters, toggleCompany, toggleTopic, clearAll } = filtersHook;
+  const { state: { currentUser } } = useUserStore();
   
   const { data: companies = [] } = useCompanies();
   const { data: topics = [] } = useTopics();
@@ -17,7 +19,8 @@ export default function FilterPanel({ filtersHook }: FilterPanelProps) {
   const activeCount = 
     filters.companies.length + 
     filters.topics.length + 
-    (filters.difficulty ? 1 : 0);
+    (filters.difficulty ? 1 : 0) +
+    (filters.status && filters.status !== 'all' ? 1 : 0);
 
   return (
     <aside aria-label="Filters" className="bg-[color:var(--surface)] border-r border-[color:var(--border-main)] w-full md:w-72 lg:w-80 h-full flex flex-col text-[color:var(--text-main)] relative z-10 shrink-0">
@@ -64,8 +67,32 @@ export default function FilterPanel({ filtersHook }: FilterPanelProps) {
           </div>
         </CollapsibleSection>
 
+        {/* Status filter — only for logged-in users */}
+        {currentUser && (
+          <CollapsibleSection title="Status" defaultOpen={true}>
+            <div className="flex flex-wrap gap-2 mt-2">
+              {(['all', 'unsolved', 'solved'] as const).map(s => {
+                const isActive = filters.status === s;
+                const label = s === 'all' ? 'All' : s === 'solved' ? '✓ Solved' : '○ Unsolved';
+                const colors = isActive
+                  ? 'bg-[color:var(--surface-active)] border-[color:var(--border-main)] text-[color:var(--text-main)]'
+                  : 'border-[color:var(--border-subtle)] text-[color:var(--text-muted)] hover:border-[color:var(--border-main)] hover:text-[color:var(--text-main)]';
+                return (
+                  <button
+                    key={s}
+                    onClick={() => updateFilters({ status: s })}
+                    className={`px-4 py-1.5 text-xs font-bold border transition-colors ${colors}`}
+                  >
+                    {label}
+                  </button>
+                );
+              })}
+            </div>
+          </CollapsibleSection>
+        )}
+
         <CompanyFilter 
-          companies={companies}
+          companies={companies || []}
           selectedCompanies={filters.companies}
           onToggle={toggleCompany}
         />
