@@ -28,8 +28,8 @@ export default function UserModal() {
       
       localStorage.setItem('dsa_user', JSON.stringify(user));
       dispatch({ type: 'SET_USER', payload: user });
-    } catch (err: any) {
-      setError(err.message || 'Authentication failed. Please check your credentials.');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Authentication failed. Please check your credentials.');
     } finally {
       setLoading(false);
     }

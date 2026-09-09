@@ -185,11 +185,27 @@ export default function CompaniesPage() {
                       </div>
                     </div>
 
-                    {/* Chevron Arrow */}
-                    <div className="w-8 h-8 rounded-lg border border-[color:var(--border-main)] flex items-center justify-center bg-[color:var(--surface-active)] group-hover:bg-[color:var(--text-main)] group-hover:text-[color:var(--surface)] transition-colors shrink-0 ml-2">
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M9 5l7 7-7 7" />
-                      </svg>
+                    {/* Quick Action Icons */}
+                    <div className="flex items-center gap-1.5 shrink-0 ml-2">
+                      {company.careers_url && (
+                        <a
+                          href={company.careers_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={(e) => e.stopPropagation()}
+                          title={`Visit ${company.name} Official Careers Page`}
+                          className="w-8 h-8 rounded-lg border border-[color:var(--border-main)] flex items-center justify-center bg-[color:var(--surface-active)] hover:bg-[color:var(--border-main)] hover:text-white transition-colors"
+                        >
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                          </svg>
+                        </a>
+                      )}
+                      <div className="w-8 h-8 rounded-lg border border-[color:var(--border-main)] flex items-center justify-center bg-[color:var(--surface-active)] group-hover:bg-[color:var(--text-main)] group-hover:text-[color:var(--surface)] transition-colors">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M9 5l7 7-7 7" />
+                        </svg>
+                      </div>
                     </div>
                   </div>
                 );

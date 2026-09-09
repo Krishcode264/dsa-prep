@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useLayoutEffect } from 'react';
 import type { ReactNode } from 'react';
 
 interface CollapsibleSectionProps {
@@ -15,11 +15,21 @@ export default function CollapsibleSection({ title, defaultOpen = true, children
     return defaultOpen;
   });
   
+  const [maxHeight, setMaxHeight] = useState<string>(defaultOpen ? '1000px' : '0px');
   const contentRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     localStorage.setItem(`collapse_${title}`, String(isOpen));
-  }, [isOpen, title]);
+    if (isOpen) {
+      if (contentRef.current) {
+        setMaxHeight(`${contentRef.current.scrollHeight + 50}px`);
+      } else {
+        setMaxHeight('1000px');
+      }
+    } else {
+      setMaxHeight('0px');
+    }
+  }, [isOpen, title, children]);
 
   return (
     <div className={`flex flex-col mb-4 ${className}`}>
@@ -38,7 +48,7 @@ export default function CollapsibleSection({ title, defaultOpen = true, children
       
       <div 
         className="transition-[max-height] duration-250 ease-in-out overflow-hidden"
-        style={{ maxHeight: isOpen ? (contentRef.current?.scrollHeight ? contentRef.current.scrollHeight + 50 : 1000) + 'px' : '0px' }}
+        style={{ maxHeight }}
       >
         <div ref={contentRef} className="pt-2 pb-2">
           {children}

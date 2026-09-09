@@ -150,24 +150,33 @@ export default function CompanyDetailPage() {
               </Link>
             </div>
 
-            {/* Header with Company Logo & Name */}
+            {/* Header with Company Logo, Name & Career Link */}
             <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-[color:var(--surface)] border-2 border-[color:var(--border-main)] p-5 sm:p-6 brutalist-no-radius shadow-[6px_6px_0px_0px_var(--border-main)]">
               <div className="flex items-center gap-5">
                 <CompanyLogo companyName={decodedCompanyName} size={64} />
                 <div className="flex flex-col">
-                  <div className="flex items-center gap-2">
-                    <span className="px-2 py-0.5 bg-[color:var(--surface-active)] border border-[color:var(--border-main)] text-[10px] font-black uppercase">
-                      Company Focus
-                    </span>
-                  </div>
                   <h1 className="text-3xl sm:text-5xl font-black uppercase tracking-tight text-[color:var(--text-main)]">
                     {decodedCompanyName}
                   </h1>
-                  <p className="text-xs font-mono font-bold opacity-60 mt-1">
+                  <p className="text-xs font-mono font-bold opacity-70 mt-1">
                     LeetCode Problem Bank · {totalQuestions} Problems Available
                   </p>
                 </div>
               </div>
+
+              {company?.careers_url && (
+                <a
+                  href={company.careers_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-4 py-2.5 bg-[color:var(--surface-active)] hover:bg-[color:var(--border-main)] text-[color:var(--text-main)] hover:text-white border-2 border-[color:var(--border-main)] font-black text-xs uppercase tracking-wider shadow-[3px_3px_0px_0px_var(--border-main)] hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all brutalist-no-radius"
+                >
+                  <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  </svg>
+                  <span>Official Careers Page</span>
+                </a>
+              )}
             </header>
 
             {/* Horizontal Difficulty Breakdown Progress Bar */}

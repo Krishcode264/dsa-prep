@@ -3,6 +3,7 @@
 CREATE TABLE IF NOT EXISTS companies (
   id SERIAL PRIMARY KEY,
   name VARCHAR(255) UNIQUE NOT NULL,
+  careers_url TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 

@@ -65,8 +65,8 @@ export default function AuthPage() {
       
       const redirect = searchParams.get('redirect') || '/questions';
       navigate(redirect, { replace: true });
-    } catch (err: any) {
-      setError(err.message || 'Authentication failed.');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Authentication failed.');
     } finally {
       setLoading(false);
     }

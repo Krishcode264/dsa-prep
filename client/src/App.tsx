@@ -22,7 +22,7 @@ export default function App() {
     if (savedUser) {
       try {
         dispatch({ type: 'SET_USER', payload: JSON.parse(savedUser) });
-      } catch (e) {
+      } catch {
         localStorage.removeItem('dsa_user');
       }
     } else if (isGuest) {

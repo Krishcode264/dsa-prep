@@ -89,7 +89,7 @@ export async function fetchStats(userId: number): Promise<StatsPayload> {
   return request<StatsPayload>(`/api/stats/${userId}`);
 }
 
-export async function authLogin(data: any): Promise<User> {
+export async function authLogin(data: Record<string, unknown>): Promise<User> {
   return request<User>('/api/auth/login', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -97,7 +97,7 @@ export async function authLogin(data: any): Promise<User> {
   });
 }
 
-export async function authSignup(data: any): Promise<User> {
+export async function authSignup(data: Record<string, unknown>): Promise<User> {
   return request<User>('/api/auth/signup', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },

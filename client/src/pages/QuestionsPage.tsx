@@ -49,9 +49,12 @@ export default function QuestionsPage() {
     ]
   });
 
-  useEffect(() => {
+  const filtersKey = JSON.stringify([filters.companies, filters.topics, filters.difficulty, filters.search, filters.topicMatch, filters.status]);
+  const [prevFiltersKey, setPrevFiltersKey] = useState(filtersKey);
+  if (filtersKey !== prevFiltersKey) {
+    setPrevFiltersKey(filtersKey);
     setPage(1);
-  }, [filters.companies, filters.topics, filters.difficulty, filters.search, filters.topicMatch, filters.status]);
+  }
 
   useEffect(() => {
     const handleResize = () => {

@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
 export interface FilterState {
@@ -69,14 +69,5 @@ export function useFilters() {
     });
   };
 
-  const memoFilters = useMemo(() => filters, [
-    filters.companies, 
-    filters.topics, 
-    filters.difficulty, 
-    filters.search, 
-    filters.topicMatch,
-    filters.status,
-  ]);
-
-  return { filters: memoFilters, updateFilters, toggleCompany, toggleTopic, clearAll };
+  return { filters, updateFilters, toggleCompany, toggleTopic, clearAll };
 }

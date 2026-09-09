@@ -11,6 +11,7 @@ router.get('/', async (req, res, next) => {
       SELECT 
         c.id, 
         c.name, 
+        c.careers_url,
         COUNT(DISTINCT qc.question_id)::int as total_questions,
         COUNT(DISTINCT CASE WHEN up.solved = true THEN qc.question_id END)::int as solved_questions,
         COUNT(DISTINCT CASE WHEN q.difficulty = 'EASY' THEN q.id END)::int as easy_total,
@@ -23,7 +24,7 @@ router.get('/', async (req, res, next) => {
       JOIN question_companies qc ON c.id = qc.company_id
       JOIN questions q ON qc.question_id = q.id
       LEFT JOIN user_progress up ON q.id = up.question_id ${userId ? 'AND up.user_id = $1' : 'AND 1=0'}
-      GROUP BY c.id, c.name
+      GROUP BY c.id, c.name, c.careers_url
       ORDER BY total_questions DESC, c.name ASC
     `;
     
@@ -45,6 +46,7 @@ router.get('/:name', async (req, res, next) => {
       SELECT 
         c.id, 
         c.name, 
+        c.careers_url,
         COUNT(DISTINCT qc.question_id)::int as total_questions,
         COUNT(DISTINCT CASE WHEN up.solved = true THEN qc.question_id END)::int as solved_questions,
         COUNT(DISTINCT CASE WHEN q.difficulty = 'EASY' THEN q.id END)::int as easy_total,
@@ -58,7 +60,7 @@ router.get('/:name', async (req, res, next) => {
       JOIN questions q ON qc.question_id = q.id
       LEFT JOIN user_progress up ON q.id = up.question_id ${userId ? 'AND up.user_id = $2' : 'AND 1=0'}
       WHERE LOWER(c.name) = LOWER($1)
-      GROUP BY c.id, c.name
+      GROUP BY c.id, c.name, c.careers_url
     `;
     
     const values = userId ? [companyName, userId] : [companyName];

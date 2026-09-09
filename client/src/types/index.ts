@@ -8,6 +8,7 @@ export interface User {
 export interface Company {
   id: number;
   name: string;
+  careers_url?: string;
   total_questions?: number;
   solved_questions?: number;
   easy_total?: number;
