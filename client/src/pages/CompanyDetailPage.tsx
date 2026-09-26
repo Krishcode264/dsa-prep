@@ -16,7 +16,7 @@ export default function CompanyDetailPage() {
   const { state: { currentUser } } = useUserStore();
   const userId = currentUser?.id;
 
-  const { data: company, isLoading: companyLoading } = useCompanyDetail(decodedCompanyName, userId);
+  const { data: company } = useCompanyDetail(decodedCompanyName, userId);
 
   // Questions & Pagination
   const [page, setPage] = useState(1);
@@ -180,7 +180,7 @@ export default function CompanyDetailPage() {
             </header>
 
             {/* Horizontal Difficulty Breakdown Progress Bar */}
-            {!companyLoading && company && (
+            {company && (
               <CompanyProgressBar 
                 easySolved={company.easy_solved || 0}
                 easyTotal={company.easy_total || 0}

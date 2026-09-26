@@ -48,7 +48,10 @@ const QuestionCard = React.memo(({
     <div className={`p-3 border-b border-[color:var(--border-main)] transition-colors ${isSolved ? 'bg-[color:var(--surface-active)]' : ''}`}>
       <div className="flex items-start gap-2.5">
         {/* Checkbox */}
-        <label className="inline-flex items-center cursor-pointer mt-0.5 shrink-0" onClick={(e) => e.stopPropagation()}>
+        <div 
+          className="relative inline-flex items-center justify-center w-5 h-5 cursor-pointer mt-0.5 shrink-0" 
+          onClick={(e) => e.stopPropagation()}
+        >
           <input
             type="checkbox"
             checked={isSolved}
@@ -56,12 +59,12 @@ const QuestionCard = React.memo(({
               e.stopPropagation();
               onToggle(q.id, isSolved);
             }}
-            className="peer sr-only"
+            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
           />
           <div className={`w-5 h-5 flex items-center justify-center transition-all duration-200 border border-[color:var(--border-main)] ${isSolved ? 'bg-[color:var(--text-main)] text-[color:var(--primary)]' : 'bg-[color:var(--surface)] text-transparent'}`}>
             {isSolved && <svg className="w-3.5 h-3.5 stroke-current" fill="none" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>}
           </div>
-        </label>
+        </div>
 
         {/* Content */}
         <div className="flex-1 min-w-0">
